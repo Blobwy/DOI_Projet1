@@ -22,8 +22,7 @@ QOS_STATUS = 1
 PUBLISH_PERIOD_S = 2.0
 
 def read_temperature_c() -> float:
-
-    return round(20.0 + random.random() * 5.0, 2)
+    return round(random.uniform(0, 40), 2)
 
 connected = False 
 def on_connect(client, userdata, flags, reason_code, properties=None):
