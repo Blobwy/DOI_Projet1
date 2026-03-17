@@ -138,6 +138,7 @@ def on_connect(client, _userdata, _flags, reason_code, properties=None):
         print(f"[SUB] {MQTT_TOPIC_FILTER}")
     else:
         print("[ERROR] Connexion MQTT échouée.")
+        
 def on_message(_client, _userdata, msg: mqtt.MQTTMessage):
 
     topic = msg.topic
