@@ -5,7 +5,7 @@ import time
 from datetime import datetime, timezone
 import paho.mqtt.client as mqtt
 
-BROKER_HOST = "localhost"
+BROKER_HOST = "192.168.2.143"
 BROKER_PORT = 1883 
 KEEPALIVE_S = 60
 CLIENT_ID = "gauthier"
