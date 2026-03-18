@@ -25,8 +25,7 @@ La DEL est branchée sur la **broche 27 (BCM)**. L'anode est reliée au GPIO et 
 ## 4) Architecture du système
 
 ### 4.1 Diagramme d'architecture
-L'architecture suit un modèle **Étoile** avec le Broker au centre.
-
+![Architecture du système](./architecture.svg)
 
 
 ### 4.2 Contrat MQTT
