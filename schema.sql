@@ -27,6 +27,6 @@ CREATE TABLE events (
     INDEX idx_events_device_ts (device, ts_utc)
 );
 
-CREATE USER IF NOT EXISTS 'iot'@'localhost' IDENTIFIED BY 'iot';
+CREATE USER 'iot'@'localhost' IDENTIFIED BY 'iot';
 GRANT ALL PRIVILEGES ON iot_b3.* TO 'iot'@'localhost';
 FLUSH PRIVILEGES;
