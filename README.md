@@ -30,11 +30,13 @@ L'architecture suit un modèle **Étoile** avec le Broker au centre.
 
 
 ### 4.2 Contrat MQTT
-| Topic | Rôle | Payload exemple |
-| :--- | :--- | :--- |
-| `.../sensors/temperature` | Télémétrie | `{"value": 22.5, "unit": "C", ...}` |
-| `.../actuators/led/cmd` | Commande | `{"state": "on"}` |
-| `.../status` | Statut LWT | `{"status": "offline"}` |
+| Topic | Publieur | Abonné | Description |
+| :--- | :--- | :--- | :--- |
+| .../sensors/temperature | `publisher_sensor.py` | `logger_mariadb.py` | JSON complet de télémétrie |
+| .../sensors/temperature/value | `publisher_sensor.py` | MQTT Dash (Jauge) | Valeur brute pour affichage |
+| .../actuators/led/cmd | MQTT Dash (Bouton) | `subscriber_led.py` | Commande de la DEL |
+| .../actuators/led/state | `subscriber_led.py` | MQTT Dash / Logger | État confirmé (Retained) |
+| .../status | Tous les scripts | MQTT Dash / Logger | LWT (Online/Offline) |
 
 ---
 

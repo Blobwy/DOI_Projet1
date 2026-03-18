@@ -4,7 +4,7 @@ COLLATE utf8mb4_unicode_ci;
 
 USE iot_b3;
 
-CREATE TABLE IF NOT EXISTS telemetry (
+CREATE TABLE telemetry (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     ts_utc DATETIME(3) NOT NULL,            
     device VARCHAR(32) NOT NULL,         
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS telemetry (
     INDEX idx_telemetry_device_ts (device, ts_utc) 
 );
 
-CREATE TABLE IF NOT EXISTS events (
+CREATE TABLE events (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     ts_utc DATETIME(3) NOT NULL,
     device VARCHAR(32) NOT NULL,
