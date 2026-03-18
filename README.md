@@ -68,7 +68,7 @@ Pour la démo, nous validons :
 ## 9) Preuves de fonctionnement
 
 ### 9.1 Dashboard MQTT Dash (Jauge et Switch)
-![Jauge de température](./Images/Jauge%20Temp.png)
+![Jauge Temp](./Images/Jauge%20Temp.png)
 ![Switch LED](./Images/Bouton%20Led%20ON-OFF.png)
 
 ### 9.2 Persistance MariaDB
