@@ -4,9 +4,7 @@ import Config
 import paho.mqtt.client as mqtt
 from gpiozero import LED
 
-
-led = LED(Config.LED_PIN_BCM)
-
+# Fonction pour publier l'état actuel de la LED (allumée ou éteinte) sur le topic MQTT de l'état
 def publish_led_state(client: mqtt.Client):
     if led.is_lit:
         val_state = "on"
@@ -24,6 +22,7 @@ def publish_led_state(client: mqtt.Client):
     client.publish(Config.TOPIC_STATE, payload_json, qos=1, retain=True)
     print(f" [STATE] {Config.TOPIC_STATE} -> {payload_json}")
 
+# Fonction pour tenter de parser le payload JSON et extraire le champ "state" si disponible et valide ("on" ou "off")
 def parse_command(payload_text: str) -> str | None:
     try:
         data = json.loads(payload_text)
@@ -34,6 +33,7 @@ def parse_command(payload_text: str) -> str | None:
         pass
     return None
 
+# Callback appelé lors de la connexion au broker MQTT
 def on_connect(client, userdata, flags, reason_code, properties=None):
     print(f" [CONNECT] connecté au broker (code {reason_code})")
     if reason_code == 0:
@@ -42,6 +42,7 @@ def on_connect(client, userdata, flags, reason_code, properties=None):
         print(f" [SUB] Abonné à : {Config.TOPIC_CMD}")
         publish_led_state(client)
 
+# Callback appelé lors de la réception d'un message sur un topic abonné
 def on_message(client, userdata, msg):
     payload = msg.payload.decode("utf-8", errors="replace")
     print(f"[MSG] Topic: {msg.topic} | Payload: {payload}")
@@ -56,8 +57,11 @@ def on_message(client, userdata, msg):
         return
 
     publish_led_state(client)
-    
-client = mqtt.Client(client_id=Config.CLIENT_ID, protocol=mqtt.MQTTv311)
+
+led = LED(Config.LED_PIN_BCM)
+
+# Créer une instance de client MQTT avec un ID unique et le protocole MQTT v3.1.1
+client = mqtt.Client(client_id=Config.LED_CLIENT_ID, protocol=mqtt.MQTTv311)
 client.will_set(Config.TOPIC_ONLINE, payload="offline", qos=1, retain=True)
 client.on_connect = on_connect
 client.on_message = on_message

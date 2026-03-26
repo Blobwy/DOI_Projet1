@@ -6,9 +6,11 @@ from typing import Any, Optional
 import pymysql
 import paho.mqtt.client as mqtt
 
+
 def utc_now_naive() -> datetime:
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
+# Fonction pour établir une connexion à la base de données MariaDB
 def db_connect() -> pymysql.connections.Connection:
     return pymysql.connect(
     host=Config.DB_HOST,
@@ -19,12 +21,12 @@ def db_connect() -> pymysql.connections.Connection:
     charset="utf8mb4",
  )
 
-db = db_connect()
-
+# Fonction pour extraire le nom de l'appareil à partir du topic MQTT
 def extract_device(topic: str) -> str:
     parts = topic.split("/")
     return parts[4] if len(parts) >= 5 else "unknown"
 
+# Fonction pour déterminer si un topic MQTT correspond à une donnée de télémétrie (contenant "/sensors/" mais pas se terminant par "/value")
 def is_telemetry(topic: str) -> bool:
     if "/sensors/" not in topic:
         return False
@@ -32,6 +34,7 @@ def is_telemetry(topic: str) -> bool:
         return False
     return True
 
+# Fonction pour classer le type de message (cmd, state, status, other) en fonction du topic MQTT
 def classify_kind(topic: str) -> str:
     if "/cmd/" in topic:
         return "cmd"
@@ -40,7 +43,8 @@ def classify_kind(topic: str) -> str:
     if "/status/" in topic:
         return "status"
     return "other"
-    
+
+# Fonction pour tenter de parser le payload JSON et extraire les champs "value" et "unit" si disponibles
 def try_parse_json(payload_text: str) -> Optional[dict[str, Any]]:
     try:
         obj = json.loads(payload_text)
@@ -48,6 +52,7 @@ def try_parse_json(payload_text: str) -> Optional[dict[str, Any]]:
     except json.JSONDecodeError:
         return None
 
+# Fonction pour insérer une donnée de télémétrie dans la table "telemetry" de la base de données
 def insert_telemetry(ts_utc: datetime, device: str, topic: str, payload_text: str) -> None:
 
     obj = try_parse_json(payload_text)
@@ -71,6 +76,7 @@ def insert_telemetry(ts_utc: datetime, device: str, topic: str, payload_text: st
         with db.cursor() as cur:
             cur.execute(sql, (ts_utc, device, topic, value, unit, payload_text))
 
+# Fonction pour insérer un événement dans la table "events" de la base de données
 def insert_event(ts_utc: datetime, device: str, topic: str, kind: str, payload_text: str) -> None:
 
     sql = """
@@ -80,6 +86,7 @@ def insert_event(ts_utc: datetime, device: str, topic: str, kind: str, payload_t
     with db.cursor() as cur:
         cur.execute(sql, (ts_utc, device, topic, kind, payload_text))
 
+# Callback appelé lors de la connexion au broker MQTT
 def on_connect(client, _userdata, _flags, reason_code, properties=None):
     print(f"[CONNECT] reason_code={reason_code}")
     if reason_code == 0:
@@ -89,8 +96,8 @@ def on_connect(client, _userdata, _flags, reason_code, properties=None):
     else:
         print("[ERROR] Connexion MQTT échouée.")
 
+# Callback appelé lors de la réception d'un message MQTT
 def on_message(_client, _userdata, msg: mqtt.MQTTMessage):
-
     topic = msg.topic
     payload_text = msg.payload.decode("utf-8", errors="replace")
     device = extract_device(topic)
@@ -113,11 +120,13 @@ def on_message(_client, _userdata, msg: mqtt.MQTTMessage):
             pass
         db = db_connect()
 
+# Callback appelé lors de la déconnexion du broker MQTT
 def on_disconnect(_client, _userdata, reason_code, properties=None):
     print(f"[DISCONNECT] reason_code={reason_code}")
 
-client = mqtt.Client(client_id=Config.MQTT_CLIENT_ID, protocol=mqtt.MQTTv311)
+db = db_connect()
 
+client = mqtt.Client(client_id=Config.MARIADB_CLIENT_ID, protocol=mqtt.MQTTv311)
 client.will_set(Config.TOPIC_ONLINE, payload="offline", qos=1, retain=True)
 client.on_connect = on_connect
 client.on_message = on_message

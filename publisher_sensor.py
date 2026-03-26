@@ -5,15 +5,18 @@ import Config
 from datetime import datetime, timezone
 import paho.mqtt.client as mqtt
 
+#Simuler une lecture de température aléatoire entre 0.0 et 40.0 degrés Celsius, arrondie à 2 décimales
 def read_temperature_c() -> float:
     return round (random.uniform(0.0, 40.0), 2)
 
+# Callback appelé lors de la connexion au broker MQTT
 def on_connect(client, userdata, flags, reason_code, properties=None):
     client.publish(Config.TOPIC_ONLINE, payload="online", qos=1, retain=True)
     global connected
     print(f"[CONNECT] reason_code={reason_code}")
     connected = (reason_code == 0)
- 
+
+ # Callback appelé lors de la déconnexion du broker MQTT
 def on_disconnect(client, userdata, reason_code, properties=None):
 
     global connected
@@ -21,27 +24,30 @@ def on_disconnect(client, userdata, reason_code, properties=None):
     connected = False
 
 connected = False
-
+# Créer une instance de client MQTT avec un ID unique et le protocole MQTT v3.1.1
 client = mqtt.Client(
-    client_id=Config.CLIENT_ID,
+    client_id=Config.SENSOR_PUB_CLIENT_ID,
     protocol=mqtt.MQTTv311
 )
-
+# Assigner les callback pour la connexion et la déconnexion
 client.on_connect = on_connect
 client.on_disconnect = on_disconnect
 
+# Configurer le message "will" pour indiquer que le capteur est "offline" si la connexion est perdue de manière inattendue
 client.will_set(
     topic=Config.TOPIC_ONLINE,
     payload="offline",
     qos=Config.QOS_STATUS_TEMP,
     retain=True
 )
-
+# Configurer les délais de reconnexion automatique (min 1s, max 30s)
 client.reconnect_delay_set(min_delay=1, max_delay=30)
 
+# Se connecter de manière asynchrone au broker MQTT et démarrer la boucle réseau dans un thread séparé
 client.connect_async(Config.MQTT_BROKER_HOST, Config.MQTT_BROKER_PORT, keepalive=Config.MQTT_KEEPALIVE)
 client.loop_start()
 
+# Publier périodiquement la température simulée tant que le programme est en cours d'exécution (ici à chaque 2 secondes)
 try:
     client.publish(Config.TOPIC_ONLINE, "online", qos=Config.QOS_STATUS_TEMP, retain=True)
     while True:
