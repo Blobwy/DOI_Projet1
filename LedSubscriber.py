@@ -10,6 +10,10 @@ class LedSubscriber(MqttSubscriber):
         self.led = LED(Config.LED_PIN_BCM)
         self.blink_thread = None
         self.stop_blink = threading.Event()
+    
+    def subscribe_topic(self):
+        """S'abonne au topic de commande d�fini dans Config"""
+        self.subscribe(Config.TOPIC_CMD)
 
     def on_message(self, client, userdata, msg):
         import json
@@ -41,3 +45,12 @@ class LedSubscriber(MqttSubscriber):
         while not self.stop_blink.is_set():
             self.led.toggle()
             time.sleep(speed)
+
+if __name__ == "__main__":
+    led_sub = LedSubscriber()
+    led_sub.connect()
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        led_sub.disconnect()
