@@ -1,10 +1,7 @@
 from abc import abstractmethod, ABC
 from datetime import datetime, timezone
-
 import paho.mqtt.client as mqtt
-
 import Config
-
 
 class BaseMqtt(ABC):
     def __init__(self, client_id):

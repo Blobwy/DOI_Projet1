@@ -2,7 +2,7 @@ from typing import List
 from BaseMqtt import BaseMqtt
 from MariadbLogger import MariadbLogger
 from TemperatureSensor import TemperatureSensor
-from LedSubscriber import LedSubscriber
+#from LedSubscriber import LedSubscriber
 
 class IoTSystem:
     def __init__(self):
@@ -42,7 +42,7 @@ def main():
     system = IoTSystem()
 
     system.add_client(TemperatureSensor())
-    system.add_client(LedSubscriber())
+    #system.add_client(LedSubscriber())
     system.add_client(MariadbLogger())
 
     system.run()

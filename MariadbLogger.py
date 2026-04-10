@@ -7,7 +7,7 @@ class MariadbLogger(MqttSubscriber):
     def __init__(self):
         super().__init__(
             client_id="mariadb_logger",
-            online_topic="home/mariadb_logger/online",
+            online_topic=Config.TOPIC_ONLINE,
         )
         self.db = self.connect_db()
 
@@ -29,7 +29,7 @@ class MariadbLogger(MqttSubscriber):
             topic = msg.topic
             payload = msg.payload.decode("utf-8")
             device = self.extract_device(topic)
-            ts = self.utc_now_naive()
+            ts = self.get_time_now()
             if self.is_telemetry(topic):
                 self.insert_telemetry(ts, device, topic, payload)
                 print(f"[DB] telemetry <- {topic}")
