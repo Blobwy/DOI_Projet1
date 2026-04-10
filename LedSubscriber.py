@@ -12,7 +12,7 @@ class LedSubscriber(MqttSubscriber):
         self.stop_blink = threading.Event()
     
     def subscribe_topic(self):
-        """S'abonne au topic de commande d�fini dans Config"""
+        """S'abonne au topic de commande defini dans Config"""
         self.subscribe(Config.TOPIC_CMD)
 
     def on_message(self, client, userdata, msg):
